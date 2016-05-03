@@ -53,7 +53,7 @@ class FileStorage implements Storage
 
 	public function delete($type, $key)
 	{
-		$file = $this->getPath($this->type($type), $key);
+		$file = $this->getPath($type, $key);
 		if (is_file($file)) {
 			unlink($file);
 		} else {
@@ -63,7 +63,7 @@ class FileStorage implements Storage
 
 	public function exists($type, $key)
 	{
-		$file = $this->getPath($this->type($type), $key);
+		$file = $this->getPath($type, $key);
 		return is_file($file);
 	}
 
@@ -72,7 +72,7 @@ class FileStorage implements Storage
 		if (empty($key)) {
 			return null;
 		}
-		$file = $this->getPath($this->type($type), $key);
+		$file = $this->getPath($type, $key);
 		if (is_file($file)) {
 			return $type::unserialize(file_get_contents($file));
 		} else {
@@ -85,7 +85,7 @@ class FileStorage implements Storage
 		$files = glob($this->getPathAll($this->type($type)));
 		foreach($files as $file) {
 			$key = basename($file, '.json');
-			$record = $this->unserialize(file_get_contents($file));
+			$record = $type::unserialize(file_get_contents($file));
 			if ($this->match($record, $condition)) {
 				yield $key => $record;
 			}
@@ -113,18 +113,20 @@ class FileStorage implements Storage
 
     protected function getPathAll($type)
     {
-        return "$this->storagePath/$type/*.json";
+        $stype = $this->type($type);
+        return "$this->storagePath/$stype/*.json";
     }
 
     protected function getPath($type, $key, $timestamp = null)
 	{
+        $stype = $this->type($type);
 		if (!preg_match('/^[0-9a-f\-]+$/i', $key)) {
 			throw new \Exception('Invalid key given.');
 		}
 		if ($timestamp === null) {
-			$path = "$this->storagePath/$type/$key.json";
+			$path = "$this->storagePath/$stype/$key.json";
 		} else {
-			$path = "$this->storagePath/$type/$key/$timestamp.json";
+			$path = "$this->storagePath/$stype/$key/$timestamp.json";
 		}
 		return $path;
 	}
@@ -142,6 +144,6 @@ class FileStorage implements Storage
      */
     protected function type($object)
     {
-        return strtolower(preg_replace('/[^A-z0-9]/', '-', is_object($object) ? get_class($object) : ltrim($object, '\\')));
+        return strtolower(preg_replace('/[^\w\d]+/', '-', is_object($object) ? get_class($object) : ltrim($object, '\\')));
     }
 }
