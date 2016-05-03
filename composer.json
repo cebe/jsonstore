@@ -1,0 +1,9 @@
+{
+    "name": "cebe/jsonstore",
+    "description": "A dead simple json file storage",
+    "type": "library",
+    "require": {
+        "php": ">=5.5",
+        "rhumsaa/uuid": "^2.8"
+    }
+}
