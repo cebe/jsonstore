@@ -2,6 +2,8 @@
 
 namespace cebe\jsonstore;
 
+use Rhumsaa\Uuid\Uuid;
+
 /**
  * Implements a dead simple storage for Json files.
  *

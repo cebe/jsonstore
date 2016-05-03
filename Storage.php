@@ -2,9 +2,6 @@
 
 namespace cebe\jsonstore;
 
-use Rhumsaa\Uuid\Uuid;
-use yii\helpers\Json;
-
 /**
  * Abstract storage class
  *
