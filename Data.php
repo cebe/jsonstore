@@ -4,6 +4,8 @@ namespace cebe\jsonstore;
 
 /**
  * A storable data objects.
+ *
+ * @author Carsten Brandt <mail@cebe.cc>
  */
 interface Data
 {

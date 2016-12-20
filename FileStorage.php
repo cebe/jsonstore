@@ -9,7 +9,7 @@ use Rhumsaa\Uuid\Uuid;
  *
  * @author Carsten Brandt <mail@cebe.cc>
  */
-class FileStorage implements Storage
+class FileStorage implements AuditableStorage
 {
     /**
      * @var string storage base path.
@@ -78,6 +78,41 @@ class FileStorage implements Storage
 		} else {
 			return null;
 		}
+	}
+
+	public function getHistory($type, $key)
+	{
+		foreach($this->getHistoryFiles($type, $key) as $file) {
+			$timestamp = basename($file, '.json');
+			$record = $type::unserialize(file_get_contents($file));
+			yield $timestamp => $record;
+		}
+	}
+
+	public function getCreateTime($type, $key)
+	{
+		$files = $this->getHistoryFiles($type, $key);
+		asort($files);
+		return (int) basename(reset($files), '.json');
+	}
+
+	public function getUpdateTime($type, $key)
+	{
+		$files = $this->getHistoryFiles($type, $key);
+		arsort($files);
+		return (int) basename(reset($files), '.json');
+	}
+
+	private function getHistoryFiles($type, $key)
+	{
+		if (empty($key)) {
+			return [];
+		}
+		$stype = $this->type($type);
+		if (!preg_match('/^[0-9a-f\-]+$/i', $key)) {
+			throw new \Exception('Invalid key given.');
+		}
+		return glob("$this->storagePath/$stype/$key/*.json");
 	}
 
 	public function getAll($type, $condition = null)
